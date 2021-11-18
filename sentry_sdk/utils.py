@@ -871,13 +871,7 @@ def _get_contextvars():
                 pass
         else:
             # On Python 3.7 contextvars are functional.
-            try:
-                from contextvars import ContextVar
-
-                return True, ContextVar
-            except ImportError:
-                pass
-            # For eventlet
+            # Special check for eventlet
             try:
                 import eventlet  # type: ignore
                 from eventlet.patcher import is_monkey_patched  # type: ignore
@@ -886,6 +880,14 @@ def _get_contextvars():
                     return True, contextvars.ContextVar
             except ImportError:
                 pass
+            
+            try:
+                from contextvars import ContextVar
+
+                return True, ContextVar
+            except ImportError:
+                pass
+
 
     # Fall back to basic thread-local usage.
 
