@@ -816,7 +816,6 @@ def _is_contextvars_broken():
         import greenlet
         from eventlet.patcher import is_monkey_patched  # type: ignore
 
-        if is_monkey_patched("thread"):
         version_tuple = tuple([int(part) for part in greenlet.__version__.split(".")[:2]])
         if is_monkey_patched("thread") and version_tuple < (0, 5):
             return True
@@ -871,16 +870,6 @@ def _get_contextvars():
                 pass
         else:
             # On Python 3.7 contextvars are functional.
-            # Special check for eventlet
-            try:
-                import eventlet  # type: ignore
-                from eventlet.patcher import is_monkey_patched  # type: ignore
-                if is_monkey_patched('thread'):
-                    contextvars = eventlet.import_patched('contextvars')
-                    return True, contextvars.ContextVar
-            except ImportError:
-                pass
-            
             try:
                 from contextvars import ContextVar
 
@@ -888,9 +877,7 @@ def _get_contextvars():
             except ImportError:
                 pass
 
-
     # Fall back to basic thread-local usage.
-
     from threading import local
 
     return False, _make_threadlocal_contextvars(local)
